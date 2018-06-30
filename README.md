@@ -1,6 +1,9 @@
 # 2048 game
 A 2048 clone in Haskell.
 
+## Screenshot
+![Screenshot](screenshot.png)
+
 ## Installation
 
 Download a stable version [here](https://gitlab.com/gRastello/2048game/tags) or clone this repository (for the tesing one) extract it, cd into it and then run:
