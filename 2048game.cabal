@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                2048game
-version:             0.1.0
+version:             0.2.0
 synopsis:            An implementation of the 2048 game in Haskell.
 homepage:            https://gitlab.com/gRastello/2048game
 -- description:         

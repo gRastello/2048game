@@ -15,22 +15,23 @@ import System.Random
 type Board = [[Int]]
 
 -- | Calculate the board after a right swipe.
+-- Return a pair containing the new board and the amount of score gained
 -- This function is used as a base for all the other swipes.
-swipeRight :: Board -> Board
-swipeRight = map swipeRightRow
+swipeRight :: Board -> (Board, Int)
+swipeRight board = (map (fst . swipeRightRow) board, sum $ map (snd . swipeRightRow) board)
 
-swipeRightRow :: [Int] -> [Int]
-swipeRightRow list = swipeRightRow' list''
+swipeRightRow :: [Int] -> ([Int], Int)
+swipeRightRow list = swipeRightRow' $ list''
     where list'   = list \\ [0, 0, 0, 0] -- removes zeroes from the Row
           list''  = take (4 - length list') (repeat 0) ++ list' -- add zeroes in front of the Row
 
-swipeRightRow' :: [Int] -> [Int]
+swipeRightRow' :: [Int] -> ([Int], Int)
 swipeRightRow' [a, b, c, d]
-    | and [a == b, c == d] = [0,   0, a+b, c+d]
-    | and [a /= b, c == d] = [0,   a,   b, c+d]
-    | b == c               = [0,   a, b+c,   d]
-    | and [a == b, c /= d] = [0, a+b,   c,   d]
-    | otherwise            = [a,   b,   c,   d]
+    | and [a == b, c == d] = ([0,   0, a+b, c+d], a+b+c+d)
+    | and [a /= b, c == d] = ([0,   a,   b, c+d], c+d)
+    | b == c               = ([0,   a, b+c,   d], b+c)
+    | and [a == b, c /= d] = ([0, a+b,   c,   d], a+b)
+    | otherwise            = ([a,   b,   c,   d], 0)
 
 -- | Rotate the board 90 degree anti-clockwise.
 -- This function is used together with swipeRight to define all the other swipes.
@@ -39,17 +40,20 @@ rotate [[a], [b], [c], [d]] = [[a, b, c, d]]
 rotate [(a:as), (b:bs), (c:cs), (d:ds)] = rotate [as, bs, cs, ds] ++ [[a, b, c, d]]
 
 -- | Calculate the board after a down swipe.
-swipeDown :: Board -> Board
-swipeDown = rotate . rotate . rotate . swipeRight . rotate
+swipeDown :: Board -> (Board, Int)
+swipeDown = rotate' . rotate' . rotate' . swipeRight . rotate
+    where rotate' (a, b) = (rotate a, b)
 
 -- | Calculate the board after an up swipe
-swipeUp :: Board -> Board
-swipeUp = rotate . swipeRight . rotate . rotate . rotate
-
+swipeUp :: Board -> (Board, Int)
+swipeUp = rotate' . swipeRight . rotate . rotate . rotate
+    where rotate' (a, b) = (rotate a, b)
+          
 -- | Calculate the board after a left swipe.
-swipeLeft :: Board -> Board
-swipeLeft = rotate . rotate . swipeRight . rotate . rotate
-
+swipeLeft :: Board -> (Board, Int)
+swipeLeft = rotate' . rotate' . swipeRight . rotate . rotate
+    where rotate' (a, b) = (rotate a, b)
+          
 -- | Add random number (2 or 4) to the board
 addNumber :: Board -> IO Board
 addNumber b = do
